@@ -11,9 +11,10 @@
   "dependencies": {
     "@aws-amplify/ui-react": "^6.5.5",
     "aws-amplify": "^6.6.6",
-    "next": "14.2.10",
+    "next": "^14.2.24",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "react-hook-form": "^7.54.2"
   },
   "devDependencies": {
     "@aws-amplify/backend": "^1.5.1",
@@ -24,7 +25,7 @@
     "aws-cdk": "^2",
     "aws-cdk-lib": "^2",
     "constructs": "^10.3.0",
-    "esbuild": "^0.23.1",
+    "esbuild": "^0.25.0",
     "tsx": "^4.19.0",
     "typescript": "^5.6.2"
   }
