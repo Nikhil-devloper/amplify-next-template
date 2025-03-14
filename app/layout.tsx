@@ -19,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <AuthComponent />
+        <AuthComponent children={ children } />
       </body>
     </html>
   );

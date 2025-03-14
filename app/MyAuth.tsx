@@ -2,12 +2,11 @@
 'use client'
 import { Authenticator } from "@aws-amplify/ui-react";
 
-const AuthComponent = () => (
+const AuthComponent = ({ children }: { children: React.ReactNode }) => (
     <Authenticator>
       {({ signOut, user }) => (
         <main>
-          <h1>Hello {user?.username}</h1>
-          <button onClick={signOut}>Sign out</button>
+            {children}
         </main>
       )}
     </Authenticator>
