@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./app.css";
-import { Authenticator } from "@aws-amplify/ui-react";
 import "@aws-amplify/ui-react/styles.css";
-import AuthComponent from './MyAuth';
 const inter = Inter({ subsets: ["latin"] });
+import './globals.css'
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -18,8 +17,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
-        <AuthComponent children={ children } />
+      <body className={inter.className}>
+        {children}
       </body>
     </html>
   );
