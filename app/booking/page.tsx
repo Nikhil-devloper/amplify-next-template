@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { ChevronLeft, ChevronRight, Info, Calendar } from 'lucide-react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
-export default function BookingPage() {
+// Create a separate component that uses useSearchParams
+function BookingContent() {
   const searchParams = useSearchParams();
   const initialDate = searchParams.get('date') || new Date().toISOString().split('T')[0];
   
@@ -309,5 +310,22 @@ export default function BookingPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+// Loading fallback component
+function BookingLoading() {
+  return (
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="text-xl">Loading booking information...</div>
+    </div>
+  );
+}
+
+export default function BookingPage() {
+  return (
+    <Suspense fallback={<BookingLoading />}>
+      <BookingContent />
+    </Suspense>
   );
 } 
