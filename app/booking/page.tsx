@@ -3,8 +3,6 @@
 import React, { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { ChevronLeft, ChevronRight, Info, Calendar } from 'lucide-react';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
 
 // Create a separate component that uses useSearchParams
 function BookingContent() {
@@ -13,6 +11,7 @@ function BookingContent() {
   
   const [currentDate, setCurrentDate] = useState(new Date(initialDate));
   const [selectedSlot, setSelectedSlot] = useState<{day: number, time: string} | null>(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   // Generate time slots for 24 hours
   const timeSlots = Array.from({ length: 24 }, (_, i) => {
@@ -57,9 +56,11 @@ function BookingContent() {
     setSelectedSlot(null);
   };
 
-  const handleDateChange = (date: Date) => {
-    setCurrentDate(date);
+  const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newDate = new Date(event.target.value);
+    setCurrentDate(newDate);
     setSelectedSlot(null);
+    setShowDatePicker(false);
   };
 
   // Generate dates for display (current date and next day)
@@ -72,14 +73,16 @@ function BookingContent() {
   // In a real app, this would come from an API
   const slotAvailability: Record<string, Record<string, { price: number, available: number }>> = {};
   
-  // Generate mock data
-  dates.forEach(date => {
+  // Generate mock data with deterministic availability pattern
+  // instead of using Math.random() which causes hydration errors
+  dates.forEach((date, dateIndex) => {
     const dateStr = date.toISOString().split('T')[0];
     slotAvailability[dateStr] = {};
     
-    allTimeSlots.forEach(time => {
-      // Random availability (0 = booked, 1 = available)
-      const available = Math.floor(Math.random() * 2);
+    allTimeSlots.forEach((time, timeIndex) => {
+      // Deterministic availability pattern based on time slot index
+      // This ensures server and client render the same data
+      const available = (timeIndex % 3 === 0) ? 0 : 1; // Every third slot is booked
       slotAvailability[dateStr][time] = {
         price: 900,
         available: available
@@ -134,9 +137,6 @@ function BookingContent() {
         <div className="bg-white rounded-lg shadow-md p-4 md:p-6 mb-8">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold text-navy-800">Select Slots</h2>
-            <button className="text-gray-400">
-              <Info size={24} />
-            </button>
           </div>
 
           <div className="flex flex-wrap gap-4 mb-6">
@@ -156,16 +156,15 @@ function BookingContent() {
 
           <div className="sticky top-0 bg-white z-10 pb-4">
             <div className="flex mb-6">
-              <div className="flex-1 border rounded-l-lg p-4 flex items-center">
-                <div className="text-center text-lg font-medium flex-1">
-                  {formatDate(currentDate)}
-                </div>
-                <div className="ml-2">
-                  <DatePicker
-                    selected={currentDate}
-                    onChange={(date: Date | null) => date && handleDateChange(date)}
-                    customInput={<button className="flex items-center text-gray-600"><Calendar size={20} /></button>}
-                    dateFormat="dd MMM, yyyy"
+              <div className="flex-1 border rounded-l-lg p-4 relative">
+                <div className="relative">
+                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input
+                    type="date"
+                    className="pl-10 w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-green-500"
+                    value={currentDate.toISOString().split('T')[0]}
+                    onChange={handleDateChange}
+                    required
                   />
                 </div>
               </div>
@@ -289,24 +288,6 @@ function BookingContent() {
         
         .text-navy-800 {
           color: #172b4d;
-        }
-        
-        .react-datepicker-wrapper {
-          display: inline-block;
-        }
-        
-        .react-datepicker__input-container button {
-          background: none;
-          border: none;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          padding: 4px;
-        }
-        
-        .react-datepicker__input-container button:hover {
-          background-color: #f3f4f6;
-          border-radius: 4px;
         }
       `}</style>
     </div>
