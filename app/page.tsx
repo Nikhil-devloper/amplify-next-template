@@ -55,6 +55,7 @@ export default function HomePage() {
   const [time, setTime] = useState('');
   const [duration, setDuration] = useState('1');
   const [showMobileBookButton, setShowMobileBookButton] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Add scroll event listener to show/hide mobile book button
   useEffect(() => {
@@ -113,13 +114,52 @@ export default function HomePage() {
             <a href="#contact" className="hover:text-green-200">Contact</a>
           </div>
           <div className="md:hidden">
-            <button className="text-white focus:outline-none">
+            <button 
+              className="text-white focus:outline-none" 
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path>
               </svg>
             </button>
           </div>
         </div>
+        
+        {/* Mobile menu dropdown */}
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-green-700 py-2 px-4 shadow-inner">
+            <div className="flex flex-col space-y-3">
+              <a 
+                href="#book" 
+                className="text-white py-2 hover:bg-green-800 px-3 rounded"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Book Now
+              </a>
+              <a 
+                href="#features" 
+                className="text-white py-2 hover:bg-green-800 px-3 rounded"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Features
+              </a>
+              <a 
+                href="#testimonials" 
+                className="text-white py-2 hover:bg-green-800 px-3 rounded"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Testimonials
+              </a>
+              <a 
+                href="#contact" 
+                className="text-white py-2 hover:bg-green-800 px-3 rounded"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Contact
+              </a>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Hero Section */}

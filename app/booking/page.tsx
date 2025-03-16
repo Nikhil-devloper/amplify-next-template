@@ -145,7 +145,7 @@ function BookingContent() {
               <span className="text-gray-600">Booked</span>
             </div>
             <div className="flex items-center">
-              <div className="w-4 h-4 border border-gray-300 rounded mr-2"></div>
+              <div className="w-4 h-4 border bg-green-100 border-gray-300 rounded mr-2"></div>
               <span className="text-gray-600">Available</span>
             </div>
             <div className="flex items-center">
