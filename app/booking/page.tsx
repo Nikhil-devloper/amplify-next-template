@@ -1,17 +1,45 @@
 "use client";
 
-import React, { useState, Suspense } from 'react';
+import '@/app/lib/amplify';  // Import the shared Amplify configuration
+import "@aws-amplify/ui-react/styles.css";
+
+import React, { useState, Suspense, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { ChevronLeft, ChevronRight, Info, Calendar } from 'lucide-react';
+import AuthComponent from '../AuthComponent';
+import { useAuthenticator } from "@aws-amplify/ui-react";
+import BookingButton from "../components/BookingButton";
+import SignOutButton from "../components/SignOutButton";
+import Navigation from "../components/Navigation";
+import { useAuth } from "../AuthComponent";
 
 // Create a separate component that uses useSearchParams
 function BookingContent() {
   const searchParams = useSearchParams();
-  const initialDate = searchParams.get('date') || new Date().toISOString().split('T')[0];
+  const { isAuthenticated, setShowAuth, signOut } = useAuth();
   
-  const [currentDate, setCurrentDate] = useState(new Date(initialDate));
+  // Use state with undefined initial value to prevent hydration mismatch
+  const [initialDate, setInitialDate] = useState<string | undefined>(undefined);
+  const [currentDate, setCurrentDate] = useState<Date | undefined>(undefined);
   const [selectedSlot, setSelectedSlot] = useState<{day: number, time: string} | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  // Initialize date values after component mounts on client
+  useEffect(() => {
+    const dateParam = searchParams.get('date');
+    const initialDateValue = dateParam || new Date().toISOString().split('T')[0];
+    setInitialDate(initialDateValue);
+    setCurrentDate(new Date(initialDateValue));
+    setIsClient(true);
+  }, [searchParams]);
+
+  // Don't render time-dependent content until client-side
+  if (!isClient || !currentDate) {
+    return <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="text-xl">Loading booking information...</div>
+    </div>;
+  }
 
   // Generate time slots for 24 hours
   const timeSlots = Array.from({ length: 24 }, (_, i) => {
@@ -45,6 +73,7 @@ function BookingContent() {
   // Function to navigate to next/previous days
   const navigateDays = (direction: 'prev' | 'next') => {
     setCurrentDate(prevDate => {
+      if (!prevDate) return new Date();
       const newDate = new Date(prevDate);
       if (direction === 'next') {
         newDate.setDate(newDate.getDate() + 1);
@@ -69,19 +98,16 @@ function BookingContent() {
     new Date(new Date(currentDate).setDate(currentDate.getDate() + 1))
   ];
 
-  // Mock data for slot availability
-  // In a real app, this would come from an API
+  // Mock data for slot availability with deterministic pattern
   const slotAvailability: Record<string, Record<string, { price: number, available: number }>> = {};
   
   // Generate mock data with deterministic availability pattern
-  // instead of using Math.random() which causes hydration errors
   dates.forEach((date, dateIndex) => {
     const dateStr = date.toISOString().split('T')[0];
     slotAvailability[dateStr] = {};
     
     allTimeSlots.forEach((time, timeIndex) => {
       // Deterministic availability pattern based on time slot index
-      // This ensures server and client render the same data
       const available = (timeIndex % 3 === 0) ? 0 : 1; // Every third slot is booked
       slotAvailability[dateStr][time] = {
         price: 900,
@@ -127,11 +153,7 @@ function BookingContent() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <header className="bg-green-700 text-white py-6">
-        <div className="container mx-auto px-4">
-          <h1 className="text-3xl font-bold">Book a Slot</h1>
-        </div>
-      </header>
+      <Navigation isFixed={false} />
 
       <main className="container mx-auto px-4 py-8">
         <div className="bg-white rounded-lg shadow-md p-4 md:p-6 mb-8">
@@ -306,7 +328,9 @@ function BookingLoading() {
 export default function BookingPage() {
   return (
     <Suspense fallback={<BookingLoading />}>
-      <BookingContent />
+      <AuthComponent>
+        <BookingContent />
+      </AuthComponent>
     </Suspense>
   );
 } 
