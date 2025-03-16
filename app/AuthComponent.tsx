@@ -76,7 +76,46 @@ const AuthComponent = ({ children }: { children: React.ReactNode }) => {
       }}
     >
       {showAuth ? (
-        <Authenticator>
+        <Authenticator
+          // Configure authenticator to use phone number fields as primary login method
+          initialState="signIn"
+          components={{
+            SignIn: {
+              // Custom Sign In component if needed
+            }
+          }}
+          formFields={{
+            signIn: {
+              phone_number: {
+                label: 'Phone Number',
+                placeholder: '+1 (555) 555-5555',
+                isRequired: true,
+              },
+              password: {
+                label: 'Password',
+                placeholder: '••••••••',
+                isRequired: true,
+              },
+            },
+            signUp: {
+              phone_number: {
+                label: 'Phone Number',
+                placeholder: '+1 (555) 555-5555',
+                isRequired: true,
+              },
+              password: {
+                label: 'Password',
+                placeholder: '••••••••',
+                isRequired: true,
+              },
+              confirm_password: {
+                label: 'Confirm Password',
+                placeholder: '••••••••',
+                isRequired: true,
+              },
+            },
+          }}
+        >
           {({ signOut, user }) => {
             // Update our state when Authenticator signs in a user
             if (user && !isAuthenticated) {
